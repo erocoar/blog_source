@@ -1,0 +1,27 @@
+baseurl = "https://erocoar.github.io/"
+title = "Stuff"
+copyright = "Copyright &copy; 2017 - Frederik Tiedemann"
+canonifyurls = true
+theme = "hugo-kiera"
+
+publishDir = "../erocoar.github.io"
+
+paginate = 3
+
+summaryLength = 30
+enableEmoji = true
+pygmentsCodeFences = true
+
+[author]
+    name = ""
+    github = ""
+    gitlab = ""
+    linkedin = ""
+    facebook = ""
+    twitter = ""
+    instagram = ""
+
+[params]
+    tagline = "..."
+
+
