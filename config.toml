@@ -5,6 +5,7 @@ canonifyurls = true
 theme = "hugo-kiera"
 
 publishDir = "../erocoar.github.io"
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 paginate = 3
 
