@@ -1,5 +1,5 @@
 baseurl = "https://erocoar.github.io/"
-title = "Stuff"
+title = "Pi*Thumb"
 copyright = "Copyright &copy; 2017 - Frederik Tiedemann"
 canonifyurls = true
 theme = "hugo-kiera"
