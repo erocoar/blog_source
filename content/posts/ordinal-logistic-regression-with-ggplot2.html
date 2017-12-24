@@ -1,8 +1,8 @@
 ---
 title: Ordinal Logistic Regression with ggplot2
-theme: hugo-theme-even
+theme: hugo-kiera
 author: ~
-date: '2017-12-23'
+date: '2017-12-24'
 categories: []
 tags: []
 ---
@@ -36,7 +36,7 @@ tags: []
 <p>With the <code>rms</code> package (regression modeling strategies), we can produce said plot as follows:</p>
 <pre class="r"><code>library(rms)
 plot.xmean.ordinaly(points ~ price, data = wines)</code></pre>
-<p><img src="/posts/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="/posts/ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <p>For our plot, we need to calculate the expected values conditional on the level of <span class="math inline">\(Y\)</span> ourselves. Without assuming PO, we can calculate the expected values by aggregating by the mean.</p>
 <pre class="r"><code>agg &lt;- aggregate(price ~ points, FUN = mean, data = wines)
 agg$points &lt;- as.numeric(agg$points)</code></pre>
@@ -69,7 +69,7 @@ ggplot(data = agg) + theme_minimal() +
   xlab(&quot;Points&quot;) + ylab(&quot;Price&quot;) + 
   labs(caption = &quot;Testing Ordinality of Y.\nSolid Line: Simple Stratified Mean.
        Dashed Line: Estimated E(Y|X) given PO.&quot;)</code></pre>
-<p><img src="/posts/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/posts/ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>Another way of checking the PO assumption is to stratify means on each predictor, and then compute “the logits of all proportions of the form <span class="math inline">\(Y \geq j, j = 1, 2, ..., k\)</span>. When proportional odds holds, the differences in logits between different values of <span class="math inline">\(j\)</span> should be the same at all levels of <span class="math inline">\(X\)</span> because the model dictates that <span class="math inline">\(logit(Y \leq j|X) - logit(Y \geq i|X) = a_j - a_i\)</span> for any constant <span class="math inline">\(X\)</span> <em>(Harrell 2001)</em>.</p>
 <p>To produce this plot, Harrell uses <code>summary.formula</code> of the <code>Hmisc</code> package to produce a plot like so:</p>
 <pre class="r"><code>library(Hmisc)
@@ -84,7 +84,7 @@ s &lt;- summary(pointInt ~ price + province, fun = sf, data = wines)
 
 plot(s, which = 1:2, pch =1:2, xlab = &#39;logit &#39;, 
      main = &#39; &#39;, width.factor =1.5) </code></pre>
-<p><img src="/posts/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="/posts/ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>To plot this using <code>ggplot2</code>, I will use <code>Hmisc</code>’s <code>cut2</code> to reproduce the same quantiles. I didn’t quite understand <code>Hmisc</code>’s way of rounding, so it is beneficial that <code>cut2</code> returns the quantiles as factors – this way, I won’t have to do manual indexing.</p>
 <pre class="r"><code>library(tidyverse)
 
@@ -175,7 +175,7 @@ xmin &lt;- min(values); xmax &lt;- max(values); n &lt;- nrow(strataggPrice)</cod
   theme(axis.title.y = element_blank()) + 
   
   labs(caption = &quot;PO is checked by examining\nvertical constancy of distances\nbetween the two symbols\n(Harrell, 2001).&quot;)</code></pre>
-<p><img src="/posts/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/posts/ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>Lastly, unrelated to checking the PO assumption, I wanted to create a stacked effects display of cumulative probabilities. I usually create effects plots with the <code>effects</code> package like so</p>
 <pre class="r"><code>library(effects)
 # fit the full model
@@ -185,7 +185,7 @@ plot(Effect(focal.predictors = c(&quot;price&quot;, &quot;province&quot;), mod =
      xlevels = list(price = seq(min(wines$price), max(wines$price), 
                                 length.out = 100))), 
      style=&quot;stacked&quot;)</code></pre>
-<p><img src="/posts/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/posts/ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>This is easily reproducible using <code>ggplot</code>.</p>
 <pre class="r"><code>#get predicted probabilities
 predDat &lt;- data.frame(
@@ -211,4 +211,4 @@ ggplot(predLong, aes(x = price, y = value, fill = Points)) +
   ylab(&quot;Probability&quot;) + xlab(&quot;Price&quot;) +
   theme_minimal() +
   theme(strip.text = element_text(size=14))</code></pre>
-<p><img src="/posts/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="/posts/ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>

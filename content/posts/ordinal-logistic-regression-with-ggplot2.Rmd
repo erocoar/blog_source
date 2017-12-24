@@ -1,8 +1,8 @@
 ---
 title: Ordinal Logistic Regression with ggplot2
-theme: hugo-theme-even
+theme: hugo-kiera
 author: ~
-date: '2017-12-23'
+date: '2017-12-24'
 categories: []
 tags: []
 ---
