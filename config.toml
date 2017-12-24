@@ -5,7 +5,7 @@ canonifyurls = true
 theme = "hugo-kiera"
 math = true
 
-googleAnalytics = "UA-111592073-1"
+googleAnalytics = ""
 publishDir = "../erocoar.github.io"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 pygmentsUseClassic=true
