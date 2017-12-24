@@ -9,6 +9,7 @@ googleAnalytics = "UA-111592073-1"
 publishDir = "../erocoar.github.io"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 pygmentsUseClassic=true
+
 paginate = 3
 
 summaryLength = 30
