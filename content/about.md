@@ -6,12 +6,5 @@ weight = "20"
 meta = "false"
 +++
 
-Hugo.
-
-makes use of a variety of open source projects including:
-
-* [Cobra](https://github.com/spf13/cobra)
-* [Viper](https://github.com/spf13/viper)
-* [J Walter Weatherman](https://github.com/spf13/jWalterWeatherman)
-* [Cast](https://github.com/spf13/cast)
+I am a graduate student at Leiden University. 
 

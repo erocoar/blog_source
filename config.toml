@@ -3,10 +3,11 @@ title = "Pi*Thumb"
 copyright = "Copyright &copy; 2017 - Frederik Tiedemann"
 canonifyurls = true
 theme = "hugo-kiera"
+math = true
 
 publishDir = "../erocoar.github.io"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
-
+pygmentsUseClassic=true
 paginate = 3
 
 summaryLength = 30

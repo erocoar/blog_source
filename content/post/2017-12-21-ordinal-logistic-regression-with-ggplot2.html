@@ -1,0 +1,214 @@
+---
+title: Ordinal Logistic Regression with ggplot2
+theme: hugo-theme-even
+author: ~
+date: '2017-12-23'
+categories: []
+tags: []
+---
+
+
+
+<p>Ordinal logistic regression is used to predict an ordinal response variable given one or more continuous or discrete explanatory variables. The ordinal response <span class="math inline">\(Y\)</span> could represent attitudes measured on a standard scale, ranging from e.g. “Strongly Disagree” to “Strongly Agree”. <span class="math inline">\(Y\)</span> could also be constructed with a hierarchy of endpoints such as “Okay”, “Good” and “Great” for rating Donald Trump’s first-year presidential performance.</p>
+<p>An advantage of the ordinal logistic model is that no spacing between the different levels of <span class="math inline">\(Y\)</span> is assumed. That is, model output would be identical for <span class="math inline">\(Y\)</span> whether it has levels <span class="math inline">\(0, 1, 100\)</span> or <span class="math inline">\(0, 1, 2\)</span>.</p>
+<p>A popular model used for ordinal logistic regression is the Proportional Odds (PO) model, which comes with the assumption of … proportional odds. And while there are statistical tests for the PO assumption <em>(see e.g. Brant, 1990)</em>, it is always a good idea to check visually whether it is likely to hold.</p>
+<p>Here, I will reproduce two plots done with <code>Hmisc</code> and <code>rms</code> packages and also do an effects plot using <code>ggplot2</code>. I won’t go into much detail regarding interpretation/fit of the data I am going to use because I just wanted to see how I would plot this via <code>ggplot</code>, irrespective of specific models.</p>
+<p>The PO model is defined as</p>
+<p><span class="math display">\[logit[P(Y_i &gt; j)] = ln \frac{P(Y_i &gt; j)}{P(Y_i \leq j)} = (\alpha - \alpha_j) + \beta_1 X_i1 + ... + \beta_k X_ik\]</span> or equivalently <span class="math display">\[logit[P(Y_i \leq j)] = ln \frac{P(Y_i \leq j)}{P(Y_i &gt; j)} = \alpha_j - \alpha - \beta_1 X_i1 - ... - \beta_k X_ik \]</span></p>
+<p>where, then <span class="math display">\[P(Y \leq j) = \frac{e^{(\alpha_j - \beta x)}}{1 + e^{(\alpha_j - \beta x)}}\\P(Y \geq j) = \frac{1}{1+e^{-(\alpha_j + X\beta)}}\]</span></p>
+<p>How the proportional odds model is written can vary by author. Harrell in <em>Regression Modeling Strategies (2001)</em> writes it in terms of <span class="math inline">\(Y \geq j\)</span>.</p>
+<p>The PO assumption is nicely displayed in the model already - parallel slopes for each regression equation (<span class="math inline">\(j = 1, 2, ... j-1\)</span>) because for any <span class="math inline">\(2\)</span> categories <span class="math inline">\(j\)</span> and <span class="math inline">\(j^*\)</span>, the cumulative logits differ only by <span class="math inline">\((\alpha_{j^*} - \alpha_j\)</span>).</p>
+<p><span class="math display">\[\frac{odds_j}{odds_j^*} = exp(logit_j - logit_j^*) = exp(\alpha_j* - \alpha_j)\]</span></p>
+<p>To create the plots, I use a (edited) sample of a wine reviews dataset from Kaggle, trying to predict reviews ranging from <span class="math inline">\(0\)</span> to <span class="math inline">\(4\)</span> (bad to good) with wine price and the state where it was produced (California, New York, Washington, Oregon).</p>
+<pre class="r"><code>head(wines)</code></pre>
+<pre><code>##        points price   province
+## 132067      2    50 California
+## 61725       1    12 California
+## 119707      2    36 California
+## 91667       0    14 California
+## 140780      1    20 California
+## 38252       3    46 California</code></pre>
+<p>To check the PO assumption, we can compare the means of <span class="math inline">\(X|Y\)</span> with and without assuming PO. Following <em>Harrell (2001)</em>,</p>
+<p>Using Bayes’ Theorem,</p>
+<p><span class="math display">\[P(X = x | Y = j) = P(Y = j|X = x)P(X = x) / P(Y = j)\]</span></p>
+<p>and so,</p>
+<p><span class="math display">\[\hat{E}(X|Y = j) = \sum_{i=1}^{n} x_i \hat{P}_{jx_i}/g_j\]</span> where <span class="math inline">\(g_j\)</span> is the frequency of <span class="math inline">\(Y = j\)</span> and <span class="math inline">\(\hat{P_jx_i}\)</span> are the probability estimates of a univariate PO-model.</p>
+<p>With the <code>rms</code> package (regression modeling strategies), we can produce said plot as follows:</p>
+<pre class="r"><code>library(rms)
+plot.xmean.ordinaly(points ~ price, data = wines)</code></pre>
+<p><img src="/post/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>For our plot, we need to calculate the expected values conditional on the level of <span class="math inline">\(Y\)</span> ourselves. Without assuming PO, we can calculate the expected values by aggregating by the mean.</p>
+<pre class="r"><code>agg &lt;- aggregate(price ~ points, FUN = mean, data = wines)
+agg$points &lt;- as.numeric(agg$points)</code></pre>
+<p>To get the expected values under PO, we need to extract the probabilities first, i.e. run a univariate model. This is also a good way to show the two different ways of stating the model:</p>
+<pre class="r"><code>#univariate model
+library(MASS)
+pmPrice &lt;- polr(as.factor(points) ~ price, data = wines)
+
+#probabilities 
+prob1 &lt;- 1 / (1 + exp(-(pmPrice$zeta[1] - coef(pmPrice) * wines$price)))
+prob2 &lt;- 1 / (1 + exp(-(pmPrice$zeta[2] - coef(pmPrice) * wines$price))) 
+prob3 &lt;- 1 / (1 + exp(-(pmPrice$zeta[3] - coef(pmPrice) * wines$price))) 
+
+#stated the other way, would write as e.g.
+prob1 &lt;- (exp(pmPrice$zeta[1] - coef(pmPrice) * wines$price)) / 
+  (1 + (exp(pmPrice$zeta[1] - coef(pmPrice) * wines$price)))
+
+#estimated expected values 
+#(for inner terms, P(X|Y) are differences between probabilities)
+e1 &lt;- sum(wines$price *  prob1          / sum(wines$points == 0)) 
+e2 &lt;- sum(wines$price * (prob2 - prob1) / sum(wines$points == 1))
+e3 &lt;- sum(wines$price * (prob3 - prob2) / sum(wines$points == 2))
+e4 &lt;- sum(wines$price * (1 - prob3)     / sum(wines$points == 3))</code></pre>
+<p>Now we can just plug this into <code>ggplot</code>.</p>
+<pre class="r"><code>library(ggplot2)
+ggplot(data = agg) + theme_minimal() +
+  geom_line(aes(x = points, y = price)) +
+  geom_point(aes(x = points, y = price), shape = 1, size = 3) +
+  geom_line(aes(x = points, y = c(e1, e2, e3, e4)), linetype = 2) + 
+  xlab(&quot;Points&quot;) + ylab(&quot;Price&quot;) + 
+  labs(caption = &quot;Testing Ordinality of Y.\nSolid Line: Simple Stratified Mean.
+       Dashed Line: Estimated E(Y|X) given PO.&quot;)</code></pre>
+<p><img src="/post/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Another way of checking the PO assumption is to stratify means on each predictor, and then compute “the logits of all proportions of the form <span class="math inline">\(Y \geq j, j = 1, 2, ..., k\)</span>. When proportional odds holds, the differences in logits between different values of <span class="math inline">\(j\)</span> should be the same at all levels of <span class="math inline">\(X\)</span> because the model dictates that <span class="math inline">\(logit(Y \leq j|X) - logit(Y \geq i|X) = a_j - a_i\)</span> for any constant <span class="math inline">\(X\)</span> <em>(Harrell 2001)</em>.</p>
+<p>To produce this plot, Harrell uses <code>summary.formula</code> of the <code>Hmisc</code> package to produce a plot like so:</p>
+<pre class="r"><code>library(Hmisc)
+pointInt &lt;- as.integer(wines$points) - 1
+
+sf &lt;- function(y) {
+  c(&#39; Y &gt;= 1 &#39; = qlogis (mean(y &gt;= 1)), 
+    &#39; Y &gt;= 2 &#39; = qlogis (mean(y &gt;= 2)))
+}
+
+s &lt;- summary(pointInt ~ price + province, fun = sf, data = wines)
+
+plot(s, which = 1:2, pch =1:2, xlab = &#39;logit &#39;, 
+     main = &#39; &#39;, width.factor =1.5) </code></pre>
+<p><img src="/post/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>To plot this using <code>ggplot2</code>, I will use <code>Hmisc</code>’s <code>cut2</code> to reproduce the same quantiles. I didn’t quite understand <code>Hmisc</code>’s way of rounding, so it is beneficial that <code>cut2</code> returns the quantiles as factors – this way, I won’t have to do manual indexing.</p>
+<pre class="r"><code>library(tidyverse)
+
+strataggPrice &lt;- wines %&gt;% 
+  mutate(pointInt    = as.integer(points) - 1, 
+         Interval    = Hmisc::cut2(price, g = 4)) %&gt;%
+  group_by(Interval) %&gt;% 
+  #two cutoffs in 0, 0|1, 1|2, 3
+  summarize(&quot;Y&gt;=1&quot; = qlogis(mean(pointInt &gt;= 1)), 
+            &quot;Y&gt;=2&quot; = qlogis(mean(pointInt &gt;= 2)))
+
+#by factor, aggregate without stratifying
+strataggProv &lt;- wines %&gt;%
+  mutate(pointInt = as.integer(points) - 1) %&gt;% 
+  group_by(province) %&gt;%
+  summarize(&quot;Y&gt;=1&quot; = qlogis(mean(pointInt &gt;= 1)),
+            &quot;Y&gt;=2&quot; = qlogis(mean(pointInt &gt;= 2))) %&gt;% 
+  rename(Interval = province) 
+
+values &lt;- rbind(strataggPrice, strataggProv)[, 2:3] %&gt;% 
+  gather() %&gt;% select(value)
+
+#long formats for ggplot
+priceLong &lt;- strataggPrice %&gt;% 
+  gather(key = &quot;Shape&quot;, value = &quot;value&quot;, &quot;Y&gt;=1&quot;, &quot;Y&gt;=2&quot;) %&gt;%
+  mutate(Shape = as.factor(Shape))
+
+provLong  &lt;- strataggProv  %&gt;% 
+  gather(key = &quot;Shape&quot;, value = &quot;value&quot;, &quot;Y&gt;=1&quot;, &quot;Y&gt;=2&quot;) %&gt;%
+  mutate(Shape = as.factor(Shape))
+
+#overall is without any indexing
+overall &lt;- wines %&gt;% 
+  mutate(pointInt = as.integer(points) -1) %&gt;% 
+  select(pointInt) %&gt;%
+  mutate(&quot;Y&gt;=1&quot; = qlogis(mean(pointInt &gt;= 1)), 
+         &quot;Y&gt;=2&quot; = qlogis(mean(pointInt &gt;= 2))) %&gt;% 
+  slice(1) %&gt;% 
+  gather(key = &quot;Shape&quot;, value = &quot;value&quot;, &quot;Y&gt;=1&quot;, &quot;Y&gt;=2&quot;) %&gt;% 
+  select(-pointInt)
+
+xmin &lt;- min(values); xmax &lt;- max(values); n &lt;- nrow(strataggPrice)</code></pre>
+<p>Plugging this into <code>ggplot2</code>,</p>
+<pre class="r"><code>ggplot() + theme_minimal()  +
+  xlim(c(xmin - 1.2, xmax+0.2)) + 
+  ylim(c(-1, nrow(values)-3)) +
+  
+  #provinces
+  geom_segment(aes(x = rep(xmin, n), xend = rep(xmax, n), 
+                   y = 3:(n+2), yend = 3:(n+2)), colour = &quot;grey&quot;) +
+  geom_point(data = provLong, aes(x = value, 
+                                  y = rev(as.numeric(Interval)) + 2, 
+                                  shape = Shape), size = 3) +
+  geom_text(aes(label = rev(strataggProv$Interval), 
+                x = rep(min(values) - 0.75, 4), y = 3:6)) +
+  
+  #prices
+  geom_segment(aes(x = rep(xmin, n), xend = rep(xmax, n), 
+                   y = (n+5):(2*n+4), yend = (n+5):(2*n+4)), 
+               colour = &quot;grey&quot;) +
+  geom_point(data = priceLong, aes(x = value, 
+                                   y = rev(as.numeric(Interval)) + n + 4, 
+                                   shape = Shape), size = 3) +
+  geom_text(aes(label = rev(strataggPrice$Interval), 
+                x = rep(min(values) - 0.75), y = (n+5):(2*n+4))) +
+  
+  #overall
+  geom_segment(aes(x = xmin, xend = xmax, 
+                   y = 0, yend = 0), colour = &quot;grey&quot;) +
+  geom_point(data = overall, aes(x = value, y = 0, 
+                                 shape = Shape), size = 3) +
+  
+  #x-titles
+  geom_text(aes(label = c(&quot;Price&quot;, &quot;Province&quot;, &quot;Overall&quot;), 
+                x = rep(min(values) - 0.75, 3), y = c(13, 7, 1)),
+            fontface = &quot;bold&quot;) +
+  
+  #border
+  geom_segment(aes(x = rep(c(xmin - 0.2, xmax + 0.2), 2), 
+                   xend = c(xmin - 0.2, xmax + 0.2, 
+                            xmax + 0.2, xmin - 0.2),
+                   y = c(rep(-1, 2), -1, 13), 
+                   yend = c(rep(13, 2), -1, 13))) +
+  
+  xlab(&quot;Logit&quot;) + 
+  theme(axis.ticks.y = element_blank()) +
+  theme(axis.text.y = element_blank())  +
+  theme(axis.title.y = element_blank()) + 
+  
+  labs(caption = &quot;PO is checked by examining\nvertical constancy of distances\nbetween the two symbols\n(Harrell, 2001).&quot;)</code></pre>
+<p><img src="/post/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Lastly, unrelated to checking the PO assumption, I wanted to create a stacked effects display of cumulative probabilities. I usually create effects plots with the <code>effects</code> package like so</p>
+<pre class="r"><code>library(effects)
+# fit the full model
+fm &lt;- polr(points ~ price + province, data = wines)
+
+plot(Effect(focal.predictors = c(&quot;price&quot;, &quot;province&quot;), mod = fm,
+     xlevels = list(price = seq(min(wines$price), max(wines$price), 
+                                length.out = 100))), 
+     style=&quot;stacked&quot;)</code></pre>
+<p><img src="/post/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>This is easily reproducible using <code>ggplot</code>.</p>
+<pre class="r"><code>#get predicted probabilities
+predDat &lt;- data.frame(
+  price = rep(seq(min(wines$price), max(wines$price), length.out = 200), 
+              length(unique(wines$province))),
+  province = rep(levels(wines$province), each = 200)
+)
+
+predDat &lt;- cbind(predDat, predict(fm, predDat, type = &quot;probs&quot;))
+
+#long format for automatic fill
+predLong &lt;- predDat %&gt;% gather(Points, value, &quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;)
+
+#colour palette for fill
+f &lt;- colorRampPalette(c(&quot;darkblue&quot;, &quot;lightblue&quot;))
+
+#i use rev() here because it is more convenient than y-axis flip imo
+ggplot(predLong, aes(x = price, y = value, fill = Points)) + 
+  geom_area(position = position_stack(reverse = TRUE)) +
+  scale_fill_manual(values = f(4)) + 
+  geom_line(position = position_stack(reverse = TRUE)) +
+  facet_wrap(~province, nrow = 1) +
+  ylab(&quot;Probability&quot;) + xlab(&quot;Price&quot;) +
+  theme_minimal() +
+  theme(strip.text = element_text(size=14))</code></pre>
+<p><img src="/post/2017-12-21-ordinal-logistic-regression-with-ggplot2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
