@@ -3,7 +3,7 @@ title: Ordinal Logistic Regression with ggplot2
 theme: hugo-kiera
 author: ~
 date: '2017-12-24'
-categories: ["regression", "visualization", "r"]
+categories: ["regression", "visualization", "r", "glm"]
 tags: ["ggplot2", "r"]
 ---
 
@@ -30,7 +30,7 @@ The PO assumption is nicely displayed in the model already - parallel slopes for
 
 $$\frac{odds_j}{odds_j^*} = exp(logit_j - logit_j^*) = exp(\alpha_j* - \alpha_j)$$
 
-To create the plots, I use a (edited) sample of a wine reviews dataset from Kaggle, trying to predict reviews ranging from $0$ to $4$ (bad to good) with wine price and the state where it was produced (California, New York, Washington, Oregon).
+To create the plots, I use a (edited) sample of a [wine reviews dataset](https://github.com/erocoar/blog_source/blob/master/content/posts/wines.csv) from [Kaggle](https://www.kaggle.com/zynicide/wine-reviews), trying to predict reviews ranging from $0$ to $4$ (bad to good) with wine price and the state where it was produced (California, New York, Washington, Oregon).
 
 ```{r, message = FALSE, include = FALSE}
 wines <- read.csv("wines.csv", sep="")

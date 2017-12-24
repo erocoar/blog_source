@@ -3,7 +3,16 @@ title: Ordinal Logistic Regression with ggplot2
 theme: hugo-kiera
 author: ~
 date: '2017-12-24'
-categories: ["regression", "visualization", "r"]
+categories: ["regression", "visualization", "r", "glm"]
+tags: ["ggplot2", "r"]
+---
+
+---
+title: Ordinal Logistic Regression with ggplot2
+theme: hugo-kiera
+author: ~
+date: '2017-12-24'
+categories: ["regression", "visualization", "r", "glm"]
 tags: ["ggplot2", "r"]
 ---
 
@@ -19,7 +28,7 @@ tags: ["ggplot2", "r"]
 <p>How the proportional odds model is written can vary by author. Harrell in <em>Regression Modeling Strategies (2001)</em> writes it in terms of <span class="math inline">\(Y \geq j\)</span>.</p>
 <p>The PO assumption is nicely displayed in the model already - parallel slopes for each regression equation (<span class="math inline">\(j = 1, 2, ... j-1\)</span>) because for any <span class="math inline">\(2\)</span> categories <span class="math inline">\(j\)</span> and <span class="math inline">\(j^*\)</span>, the cumulative logits differ only by <span class="math inline">\((\alpha_{j^*} - \alpha_j\)</span>).</p>
 <p><span class="math display">\[\frac{odds_j}{odds_j^*} = exp(logit_j - logit_j^*) = exp(\alpha_j* - \alpha_j)\]</span></p>
-<p>To create the plots, I use a (edited) sample of a wine reviews dataset from Kaggle, trying to predict reviews ranging from <span class="math inline">\(0\)</span> to <span class="math inline">\(4\)</span> (bad to good) with wine price and the state where it was produced (California, New York, Washington, Oregon).</p>
+<p>To create the plots, I use a (edited) sample of a <a href="https://github.com/erocoar/blog_source/blob/master/content/posts/wines.csv">wine reviews dataset</a> from <a href="https://www.kaggle.com/zynicide/wine-reviews">Kaggle</a>, trying to predict reviews ranging from <span class="math inline">\(0\)</span> to <span class="math inline">\(4\)</span> (bad to good) with wine price and the state where it was produced (California, New York, Washington, Oregon).</p>
 <pre class="r"><code>head(wines)</code></pre>
 <pre><code>##        points price   province
 ## 132067      2    50 California
