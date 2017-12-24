@@ -3,7 +3,7 @@ title: Ordinal Logistic Regression with ggplot2
 theme: hugo-kiera
 author: ~
 date: '2017-12-24'
-categories: ["regression", "visualization", "r", "glm"]
+categories: ["regression", "visualization", "r"]
 tags: ["ggplot2", "r"]
 ---
 
