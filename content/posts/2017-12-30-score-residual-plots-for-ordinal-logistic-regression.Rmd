@@ -1,0 +1,44 @@
+---
+title: Score Residual Plots for Ordinal Logistic Regression
+author: ~
+date: '2017-12-30'
+draft: True
+slug: score-residual-plots-for-ordinal-logistic-regression
+categories: []
+tags: []
+---
+
+```{r, message = FALSE, include = FALSE}
+wines <- read.csv("wines.csv", sep="")
+```
+
+```{r}
+library(rms)
+
+f <- lrm(factor(points) ~ price, data = wines, x = TRUE, y = TRUE)
+
+resid(f , 'score.binary', pl = TRUE)
+```
+
+```{r}
+library(MASS)
+m <- polr(factor(points) ~ price, data = wines)
+
+cbind(
+  mean(wines$price * ((wines$points >= 1) - plogis(wines$price * f$coefficients[4] + f$coefficients[1]))),
+  mean(wines$price * ((wines$points >= 2) - plogis(wines$price * f$coefficients[4] + f$coefficients[2]))),
+  mean(wines$price * ((wines$points >= 3) - plogis(wines$price * f$coefficients[4] + f$coefficients[3]))))
+
+m.zeta <- m$zeta*-1
+cbind(
+  mean(wines$price * ((wines$points >= 1) - plogis(wines$price * m$coefficients + m.zeta[1]))),
+  mean(wines$price * ((wines$points >= 2) - plogis(wines$price * m$coefficients + m.zeta[2]))), 
+  mean(wines$price * ((wines$points >= 3) - plogis(wines$price * m$coefficients + m.zeta[3]))))
+```
+
+
+
+
+
+
+

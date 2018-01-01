@@ -1,0 +1,219 @@
+---
+title: Fireworks with ggplot2
+author: ~
+date: '2018-01-01'
+slug: fireworks-with-ggplot2
+categories: ["r", "visualization"]
+tags: ["ggplot2"]
+---
+
+**Happy New Year!** Here's some fireworks (GIF):
+
+![](../2018-01-01-fireworks-with-ggplot2_files/fireworks.gif)
+
+To get a "firework effect", we need many points jittered around many straight lines, where the points are increasing in size and alpha as distance from the firework center increases. 
+
+```{r}
+vec_seq <- Vectorize(seq.default, vectorize.args = "to")
+
+dense_line_to_point <- function(cx, cy, x, y) {
+  nx <- vec_seq(cx, x, length.out = 45)
+  ny <- vec_seq(cy, y, length.out = 45)
+  size <- nx^2+ny^2
+  return(cbind(nx, ny, size))
+}
+```
+
+To get points around the firework center, simply get random angles on the circle:
+
+```{r}
+get_circumference_matrix <- function(cx, yx, r, random = TRUE) {
+  n <- if (random) 55 else 30
+  angles <- sample(seq(0, 0.99, length.out = n), 30, 
+                   replace = FALSE) * pi * 2
+  matrix(c(cos(angles) * r, sin(angles) * r), ncol = 2)
+}
+```
+
+A firework can be plotted with just those two functions.
+
+```{r, warning = FALSE, message = FALSE}
+library(ggplot2)
+library(gridExtra)
+
+firework <- function(status = NULL, rad = 5, 
+                     inner_glow_jitter = 0.1, 
+                     outer_glow_jitter = 0.1,
+                     point_alpha = 1, 
+                     jlines = NA, #allow for manual matrices for later animation
+                     glow_inner = NA,
+                     glow_outer = NA,
+                     col_inner = NA,
+                     col_outer = NA) {
+  
+  rad_outer <- get_circumference_matrix(0, 0, rad)   #points on outer firework radius
+  rad_inner <- get_circumference_matrix(0, 0, rad/2) #points on half radius
+  
+  #lines connecting center + points on circle
+  if (is.na(jlines)) jlines <- jitter( 
+    dense_line_to_point(0, 0, rad_outer[, 1], rad_outer[, 2]), amount = status)
+    
+  if (is.na(glow_inner)) glow_inner <- jitter(rad_inner, amount = inner_glow_jitter)
+  if (is.na(glow_outer)) glow_outer <- jitter(rad_outer, amount = outer_glow_jitter)
+  
+  #rnd firework colors for the outer, "glowing" points
+  if (is.na(col_inner)) col_inner <- factor(sample(1:6, 30, replace = TRUE))
+  if (is.na(col_outer)) col_outer  <- factor(sample(1:6, 30, replace = TRUE))
+  
+  inner_glow_jitter <- inner_glow_jitter / 5
+  outer_glow_jitter <- outer_glow_jitter / 5
+      
+  pfw <- ggplot() +  
+    
+    coord_fixed() +
+    theme(legend.position = "none") +
+    theme(panel.border = element_blank()) +
+    theme(line = element_blank()) +
+    theme(text = element_blank()) +
+    theme(title = element_blank()) + 
+    theme(panel.background = element_rect(fill = "black")) +
+    theme(panel.grid = element_blank()) +
+    xlim(-5, 5) + ylim(-5, 5) +
+    
+    geom_point(aes(as.vector(jlines[, 1:30]), 
+                   as.vector(jlines[, 31:60]),
+                   size = as.vector(jlines[, 61:90]), 
+                   fill = as.vector(jlines[, 61:90])), 
+               stroke = 0, pch = 21, alpha = point_alpha) +
+    scale_size_continuous(range = c(1, 3)) +
+    scale_fill_continuous(low = "#72401c", high = "#f5f7e8") +
+    
+    # repeat and jitter for glow effect
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 3, alpha = 0.3, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+
+    geom_point(aes(jitter(glow_inner[, 1], amount = inner_glow_jitter), 
+                   jitter(glow_inner[, 2], amount = inner_glow_jitter),
+                   colour = col_inner), size = 3, alpha = 0.35, shape = 16) +
+    geom_point(aes(jitter(glow_inner[, 1], amount = inner_glow_jitter), 
+                   jitter(glow_inner[, 2], amount = inner_glow_jitter),
+                   colour = col_inner), size = 2, alpha = 0.2, shape = 16) +
+    geom_point(aes(jitter(glow_inner[, 1], amount = inner_glow_jitter), 
+                   jitter(glow_inner[, 2], amount = inner_glow_jitter),
+                   colour = col_inner), size = 2, alpha = 0.2, shape = 16) +
+    
+    scale_color_manual(values = c("#e25c41", "#7f5de7", "#891019", "#efa483", "#f44e37", "#e6b700"))
+}
+```
+
+```{r firework-plot1, warning = FALSE}
+jit <- seq(0, 0.4, length.out = 3)
+
+fws <- lapply(1:4, FUN = function(x) {
+  firework(if (x != 1) status = jit[x-1])
+})
+
+do.call("grid.arrange", c(fws, nrow = 2))
+```
+
+To plot a rocket, simply plot $-x^2$ with changing alpha. My code is a bit messy here and I would have to fix the scales, but don't have the time for doing so. So the first 20 frames or so are just black.
+
+```{r}
+#create rocket data
+rocket <- cbind(-seq(4, 0, length.out = 100), (-(seq(4, 0, length.out = 100))^2))
+rocket_alpha <- matrix(c(rep(1, 2), rep(0, 98)), ncol = 1)
+
+#fill alpha matrix
+for(i in 1:49) {
+  rocket_alpha <- cbind(rocket_alpha, lag(rocket_alpha[, i], 2, 0))
+  rocket_alpha[1:(2+2*i), i+1] <- seq(0.01, 0.75, length.out = (2+2*i))
+  rocket_alpha[(2+2*i):100, i] <- 0
+}
+
+draw_rocket <- function(rocket, rocket_alpha) {
+  rckt <- ggplot() + 
+    coord_fixed() +
+    theme(legend.position = "none") +
+    theme(panel.border = element_blank()) +
+    theme(line = element_blank()) +
+    theme(text = element_blank()) +
+    theme(title = element_blank()) + 
+    theme(panel.background = element_rect(fill = "black")) +
+    theme(panel.grid = element_blank()) +
+    xlim(-5, 5) + ylim(-5, 5) +
+    geom_point(aes(rocket[, 1], rocket[, 2], alpha = rocket_alpha), colour = "gold", shape = 16, size = 2) +
+    scale_alpha_continuous(range = c(0, 0.9))
+  return(rckt)
+}
+```
+
+```{r rocket-plot, warning = FALSE}
+rckts <- lapply(as.integer(seq(25, 50, length.out = 4)), FUN = function(x) {
+  draw_rocket(rocket, rocket_alpha[, x])
+}
+)
+do.call("grid.arrange", c(rckts, nrow = 2))
+```
+
+And the animation, then, is straightforward too! 
+
+```{r eval = FALSE}
+library(animation)
+
+opt = ani.options(interval = 0.15)
+
+saveGIF({for (i in 1:100) {
+  
+  if (i < 51) {
+    fw <- draw_rocket(rocket, rocket_alpha[, i])
+  }
+  
+  else if (i < 76) {
+    i <- i - 50
+    start_rad_outer <- get_circumference_matrix(0, 0, start_rad[i], random = FALSE)
+    start_rad_inner <- get_circumference_matrix(0, 0, start_rad[i]/2, random = FALSE)
+    start_jlines <- dense_line_to_point(0, 0, rad_outer[, 1], rad_outer[, 2])
+    jitter_jlines <- jitter(start_jlines, amount = status[i])
+    glow_outer <- jitter(start_rad_outer, amount = status[i])
+
+    fw <- firework(jlines = jitter_jlines, glow_outer = glow_outer, glow_inner = glow_inner,
+                   col_inner = col_inner, col_outer = col_outer)
+  }
+  
+  else {
+    i <- i - 75
+    jitter_jlines <- jitter(jlines, amount = status[i])
+    glow_outer <- jitter(rad_outer, amount = status[i])
+    glow_inner <- jitter(rad_outer, amount = status[i])
+    
+    fw <- firework(jlines = jitter_jlines, glow_outer = glow_outer, glow_inner = glow_inner,
+                   point_alpha = end_alpha[i], col_inner = col_inner, col_outer = col_outer)
+  }
+  
+  print(fw)
+  ani.pause(opt) 
+}}, movie.name = "fireworks.gif",ani.width = 500, ani.height = 500)
+
+```
+
+
+
+
+
+
+
+
+
