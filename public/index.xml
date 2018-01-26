@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Pi*Thumb</title>
+    <link>/</link>
+    <description>Recent content on Pi*Thumb</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Frederik Tiedemann</copyright>
+    <lastBuildDate>Wed, 09 Apr 2014 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About</title>
+      <link>/page/about/</link>
+      <pubDate>Wed, 09 Apr 2014 00:00:00 +0000</pubDate>
+      
+      <guid>/page/about/</guid>
+      <description>I am a graduate student at Leiden University.</description>
+    </item>
+    
+    <item>
+      <title>Introducing ggparl</title>
+      <link>/2018/01/26/2018-01-26-introducing-ggparl/</link>
+      <pubDate>Fri, 26 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/01/26/2018-01-26-introducing-ggparl/</guid>
+      <description>Aboutggparl is a small R package for conveniently drawing parliament diagrams with ggplot2. For now, it consists of only two functions, the usage of which is outlined below.
+#install.packages(&amp;quot;devtools&amp;quot;)devtools::install_github(&amp;quot;erocoar/ggparl&amp;quot;)library(ggparl)ggplot_parliamentggplot_parliament draws a parliament diagram that looks much like the diagrams seen on Wikipedia. Points along an arc are clustered by parties with each point representing a single member of parliament.
+# creating sample databt &amp;lt;- data.</description>
+    </item>
+    
+    <item>
+      <title>Fireworks with ggplot2</title>
+      <link>/2018/01/01/2018-01-01-fireworks-with-ggplot2/</link>
+      <pubDate>Mon, 01 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/01/01/2018-01-01-fireworks-with-ggplot2/</guid>
+      <description>Happy New Year! Here’s some fireworks (GIF):
+To get a “firework effect”, we need many points jittered around many straight lines, where the points are increasing in size and alpha as distance from the firework center increases.
+vec_seq &amp;lt;- Vectorize(seq.default, vectorize.args = &amp;quot;to&amp;quot;)dense_line_to_point &amp;lt;- function(cx, cy, x, y) {nx &amp;lt;- vec_seq(cx, x, length.out = 45)ny &amp;lt;- vec_seq(cy, y, length.out = 45)size &amp;lt;- nx^2+ny^2return(cbind(nx, ny, size))}To get points around the firework center, simply get random angles on the circle:</description>
+    </item>
+    
+    <item>
+      <title>Christmas Drawings with ggforce</title>
+      <link>/2017/12/26/christmas-drawings-with-ggforce/</link>
+      <pubDate>Tue, 26 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/12/26/christmas-drawings-with-ggforce/</guid>
+      <description>Merry Christmas! This is me having a go at creating some Christmas-y plots in R with the lovely ggforce package.
+library(ggforce)#basic rotation matrixrotate &amp;lt;- function(angle){a = angle * pi / 180matrix(c(cos(a), -sin(a), sin(a), cos(a)), ncol = 2)}#to get points w/ x distance from linelineNorm &amp;lt;- function(x0, y0, x1, y1) {o &amp;lt;- cbind(x1, y1) - cbind(x0, y0)as.matrix(o / sqrt(sum(o^2)))}#main structure for snowflakes/starsmainStructure &amp;lt;- matrix(rotate(seq(45, 360, 45)) %*% t(matrix(c(0, 1), ncol = 2)), ncol = 2, byrow = F)sides &amp;lt;- t(cbind(rotate(30) %*% t(mainStructure),rotate(-30) %*% t(mainStructure)))sideN &amp;lt;- cbind(rep(mainStructure[, 1]/2, 2), rep(mainStructure[, 2]/2, 2)) + 1.</description>
+    </item>
+    
+    <item>
+      <title>Ordinal Logistic Regression with ggplot2</title>
+      <link>/2017/12/24/ordinal-logistic-regression-with-ggplot2/</link>
+      <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/12/24/ordinal-logistic-regression-with-ggplot2/</guid>
+      <description>Ordinal logistic regression is used to predict an ordinal response variable given one or more continuous or discrete explanatory variables. The ordinal response \(Y\) could represent attitudes measured on a standard scale, ranging from e.g. “Strongly Disagree” to “Strongly Agree”. \(Y\) could also be constructed with a hierarchy of endpoints such as “Okay”, “Good” and “Great” for rating Donald Trump’s first-year presidential performance.
+An advantage of the ordinal logistic model is that no spacing between the different levels of \(Y\) is assumed.</description>
+    </item>
+    
+  </channel>
+</rss>

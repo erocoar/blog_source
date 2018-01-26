@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Fireworks with ggplot2 &middot; Frederik Tiedemann</title>
+        <meta name="description" content="Happy New Year! Here’s some fireworks (GIF):
+To get a “firework effect”, we need many points jittered around many straight lines, where the points are increasing in size and alpha as distance from the firework center increases.
+vec_seq &lt;- Vectorize(seq.default, vectorize.args = &quot;to&quot;)dense_line_to_point &lt;- function(cx, cy, x, y) {nx &lt;- vec_seq(cx, x, length.out = 45)ny &lt;- vec_seq(cy, y, length.out = 45)size &lt;- nx^2&#43;ny^2return(cbind(nx, ny, size))}To get points around the firework center, simply get random angles on the circle:">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.31.1" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="Fireworks with ggplot2">
+<meta property="og:description" content="Happy New Year! Here’s some fireworks (GIF):
+To get a “firework effect”, we need many points jittered around many straight lines, where the points are increasing in size and alpha as distance from the firework center increases.
+vec_seq &lt;- Vectorize(seq.default, vectorize.args = &quot;to&quot;)dense_line_to_point &lt;- function(cx, cy, x, y) {nx &lt;- vec_seq(cx, x, length.out = 45)ny &lt;- vec_seq(cy, y, length.out = 45)size &lt;- nx^2&#43;ny^2return(cbind(nx, ny, size))}To get points around the firework center, simply get random angles on the circle:">
+<meta property="og:type" content="article">
+<meta property="og:url" content="/2018/01/01/2018-01-01-fireworks-with-ggplot2/">
+        <link rel="stylesheet" href="/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        
+        
+    </head>
+    <body>
+        
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111592073-1', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="Pi*Thumb" href="/">Pi*Thumb</a>
+                            </h1>
+                        
+                        <a class="button-square" href="/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/erocoar">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Stack Overflow" title="Stack Overflow" href="https://stackoverflow.com/users/5508500/erocoar">
+                                <i class="fa fa-stack-overflow"></i>
+                            </a>
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="LinkedIn" title="LinkedIn" href="https://www.linkedin.com/in/frederik-tiedemann-67291396/">
+                                <i class="fa fa-linkedin"></i>
+                            </a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:fj.tiedemann@googlemail.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="About" href="/page/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Fireworks with ggplot2</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2018-01-01" itemprop="datePublished">Mon, Jan 1, 2018</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="#" itemprop="url" rel="author">Frederik Tiedemann</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    <p><strong>Happy New Year!</strong> Here’s some fireworks (GIF):</p>
+<div class="figure">
+<img src="/img/fireworks-ggplot2/fireworks.gif" />
+
+</div>
+<p>To get a “firework effect”, we need many points jittered around many straight lines, where the points are increasing in size and alpha as distance from the firework center increases.</p>
+<pre class="r"><code>vec_seq &lt;- Vectorize(seq.default, vectorize.args = &quot;to&quot;)
+
+dense_line_to_point &lt;- function(cx, cy, x, y) {
+  nx &lt;- vec_seq(cx, x, length.out = 45)
+  ny &lt;- vec_seq(cy, y, length.out = 45)
+  size &lt;- nx^2+ny^2
+  return(cbind(nx, ny, size))
+}</code></pre>
+<p>To get points around the firework center, simply get random angles on the circle:</p>
+<pre class="r"><code>get_circumference_matrix &lt;- function(cx, yx, r, random = TRUE) {
+  n &lt;- if (random) 55 else 30
+  angles &lt;- sample(seq(0, 0.99, length.out = n), 30, 
+                   replace = FALSE) * pi * 2
+  matrix(c(cos(angles) * r, sin(angles) * r), ncol = 2)
+}</code></pre>
+<p>A firework can be plotted with just those two functions.</p>
+<pre class="r"><code>library(ggplot2)
+library(gridExtra)
+
+firework &lt;- function(status = NULL, rad = 5, 
+                     inner_glow_jitter = 0.1, 
+                     outer_glow_jitter = 0.1,
+                     point_alpha = 1, 
+                     jlines = NA, #allow for manual matrices for later animation
+                     glow_inner = NA,
+                     glow_outer = NA,
+                     col_inner = NA,
+                     col_outer = NA) {
+  
+  rad_outer &lt;- get_circumference_matrix(0, 0, rad)   #points on outer firework radius
+  rad_inner &lt;- get_circumference_matrix(0, 0, rad/2) #points on half radius
+  
+  #lines connecting center + points on circle
+  if (is.na(jlines)) jlines &lt;- jitter( 
+    dense_line_to_point(0, 0, rad_outer[, 1], rad_outer[, 2]), amount = status)
+    
+  if (is.na(glow_inner)) glow_inner &lt;- jitter(rad_inner, amount = inner_glow_jitter)
+  if (is.na(glow_outer)) glow_outer &lt;- jitter(rad_outer, amount = outer_glow_jitter)
+  
+  #rnd firework colors for the outer, &quot;glowing&quot; points
+  if (is.na(col_inner)) col_inner &lt;- factor(sample(1:6, 30, replace = TRUE))
+  if (is.na(col_outer)) col_outer  &lt;- factor(sample(1:6, 30, replace = TRUE))
+  
+  inner_glow_jitter &lt;- inner_glow_jitter / 5
+  outer_glow_jitter &lt;- outer_glow_jitter / 5
+      
+  pfw &lt;- ggplot() +  
+    
+    coord_fixed() +
+    theme(legend.position = &quot;none&quot;) +
+    theme(panel.border = element_blank()) +
+    theme(line = element_blank()) +
+    theme(text = element_blank()) +
+    theme(title = element_blank()) + 
+    theme(panel.background = element_rect(fill = &quot;black&quot;)) +
+    theme(panel.grid = element_blank()) +
+    xlim(-5, 5) + ylim(-5, 5) +
+    
+    geom_point(aes(as.vector(jlines[, 1:30]), 
+                   as.vector(jlines[, 31:60]),
+                   size = as.vector(jlines[, 61:90]), 
+                   fill = as.vector(jlines[, 61:90])), 
+               stroke = 0, pch = 21, alpha = point_alpha) +
+    scale_size_continuous(range = c(1, 3)) +
+    scale_fill_continuous(low = &quot;#72401c&quot;, high = &quot;#f5f7e8&quot;) +
+    
+    # repeat and jitter for glow effect
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 3, alpha = 0.3, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+    geom_point(aes(jitter(glow_outer[, 1], amount = outer_glow_jitter), 
+                   jitter(glow_outer[, 2], amount = outer_glow_jitter),
+                   colour = col_outer), size = 5, alpha = 0.15, shape = 16) +
+
+    geom_point(aes(jitter(glow_inner[, 1], amount = inner_glow_jitter), 
+                   jitter(glow_inner[, 2], amount = inner_glow_jitter),
+                   colour = col_inner), size = 3, alpha = 0.35, shape = 16) +
+    geom_point(aes(jitter(glow_inner[, 1], amount = inner_glow_jitter), 
+                   jitter(glow_inner[, 2], amount = inner_glow_jitter),
+                   colour = col_inner), size = 2, alpha = 0.2, shape = 16) +
+    geom_point(aes(jitter(glow_inner[, 1], amount = inner_glow_jitter), 
+                   jitter(glow_inner[, 2], amount = inner_glow_jitter),
+                   colour = col_inner), size = 2, alpha = 0.2, shape = 16) +
+    
+    scale_color_manual(values = c(&quot;#e25c41&quot;, &quot;#7f5de7&quot;, &quot;#891019&quot;, &quot;#efa483&quot;, &quot;#f44e37&quot;, &quot;#e6b700&quot;))
+}</code></pre>
+<pre class="r"><code>jit &lt;- seq(0, 0.4, length.out = 3)
+
+fws &lt;- lapply(1:4, FUN = function(x) {
+  firework(if (x != 1) status = jit[x-1])
+})
+
+do.call(&quot;grid.arrange&quot;, c(fws, nrow = 2))</code></pre>
+<p><img src="/post/2018-01-01-fireworks-with-ggplot2_files/figure-html/firework-plot1-1.png" width="672" /></p>
+<p>To plot a rocket, simply plot <span class="math inline">\(-x^2\)</span> with changing alpha. My code is a bit messy here and I would have to fix the scales, but don’t have the time for doing so. So the first 20 frames or so are just black.</p>
+<pre class="r"><code>#create rocket data
+rocket &lt;- cbind(-seq(4, 0, length.out = 100), (-(seq(4, 0, length.out = 100))^2))
+rocket_alpha &lt;- matrix(c(rep(1, 2), rep(0, 98)), ncol = 1)
+
+#fill alpha matrix
+for(i in 1:49) {
+  rocket_alpha &lt;- cbind(rocket_alpha, lag(rocket_alpha[, i], 2, 0))
+  rocket_alpha[1:(2+2*i), i+1] &lt;- seq(0.01, 0.75, length.out = (2+2*i))
+  rocket_alpha[(2+2*i):100, i] &lt;- 0
+}
+
+draw_rocket &lt;- function(rocket, rocket_alpha) {
+  rckt &lt;- ggplot() + 
+    coord_fixed() +
+    theme(legend.position = &quot;none&quot;) +
+    theme(panel.border = element_blank()) +
+    theme(line = element_blank()) +
+    theme(text = element_blank()) +
+    theme(title = element_blank()) + 
+    theme(panel.background = element_rect(fill = &quot;black&quot;)) +
+    theme(panel.grid = element_blank()) +
+    xlim(-5, 5) + ylim(-5, 5) +
+    geom_point(aes(rocket[, 1], rocket[, 2], alpha = rocket_alpha), colour = &quot;gold&quot;, shape = 16, size = 2) +
+    scale_alpha_continuous(range = c(0, 0.9))
+  return(rckt)
+}</code></pre>
+<pre class="r"><code>rckts &lt;- lapply(as.integer(seq(25, 50, length.out = 4)), FUN = function(x) {
+  draw_rocket(rocket, rocket_alpha[, x])
+}
+)
+do.call(&quot;grid.arrange&quot;, c(rckts, nrow = 2))</code></pre>
+<p><img src="/post/2018-01-01-fireworks-with-ggplot2_files/figure-html/rocket-plot-1.png" width="672" /></p>
+<p>And the animation, then, is straightforward too!</p>
+<pre class="r"><code>library(animation)
+
+opt = ani.options(interval = 0.15)
+
+saveGIF({for (i in 1:100) {
+  
+  if (i &lt; 51) {
+    fw &lt;- draw_rocket(rocket, rocket_alpha[, i])
+  }
+  
+  else if (i &lt; 76) {
+    i &lt;- i - 50
+    start_rad_outer &lt;- get_circumference_matrix(0, 0, start_rad[i], random = FALSE)
+    start_rad_inner &lt;- get_circumference_matrix(0, 0, start_rad[i]/2, random = FALSE)
+    start_jlines &lt;- dense_line_to_point(0, 0, rad_outer[, 1], rad_outer[, 2])
+    jitter_jlines &lt;- jitter(start_jlines, amount = status[i])
+    glow_outer &lt;- jitter(start_rad_outer, amount = status[i])
+
+    fw &lt;- firework(jlines = jitter_jlines, glow_outer = glow_outer, glow_inner = glow_inner,
+                   col_inner = col_inner, col_outer = col_outer)
+  }
+  
+  else {
+    i &lt;- i - 75
+    jitter_jlines &lt;- jitter(jlines, amount = status[i])
+    glow_outer &lt;- jitter(rad_outer, amount = status[i])
+    glow_inner &lt;- jitter(rad_outer, amount = status[i])
+    
+    fw &lt;- firework(jlines = jitter_jlines, glow_outer = glow_outer, glow_inner = glow_inner,
+                   point_alpha = end_alpha[i], col_inner = col_inner, col_outer = col_outer)
+  }
+  
+  print(fw)
+  ani.pause(opt) 
+}}, movie.name = &quot;fireworks.gif&quot;,ani.width = 500, ani.height = 500)</code></pre>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+        <p class="post-tags">
+            <span>Tagged:</span>
+            
+            
+                <a href="/tags/ggplot2/">ggplot2</a>
+            
+        </p>
+    
+
+    <div class="share">
+        
+            <a class="icon-twitter" href="https://twitter.com/share?text=Fireworks%20with%20ggplot2&url=%2f2018%2f01%2f01%2f2018-01-01-fireworks-with-ggplot2%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-twitter"></i>
+                <span class="hidden">Twitter</span>
+            </a>
+        
+
+        
+            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=%2f2018%2f01%2f01%2f2018-01-01-fireworks-with-ggplot2%2f"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-facebook"></i>
+                <span class="hidden">Facebook</span>
+            </a>
+        
+
+        
+            <a class="icon-google-plus" href="https://plus.google.com/share?url=%2f2018%2f01%2f01%2f2018-01-01-fireworks-with-ggplot2%2f"
+              onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+              <i class="fa fa-google-plus"></i>
+                <span class="hidden">Google+</span>
+            </a>
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="Pi*Thumb" href="/">Pi*Thumb</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2018 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
+                </p>
+            </div>
+        </footer>
+
+        <script src="/js/jquery-1.11.3.min.js"></script>
+        <script src="/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="/js/scripts.js"></script>
+    </body>
+</html>
+

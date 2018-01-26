@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Introducing ggparl &middot; Frederik Tiedemann</title>
+        <meta name="description" content="Aboutggparl is a small R package for conveniently drawing parliament diagrams with ggplot2. For now, it consists of only two functions, the usage of which is outlined below.
+#install.packages(&quot;devtools&quot;)devtools::install_github(&quot;erocoar/ggparl&quot;)library(ggparl)ggplot_parliamentggplot_parliament draws a parliament diagram that looks much like the diagrams seen on Wikipedia. Points along an arc are clustered by parties with each point representing a single member of parliament.
+# creating sample databt &lt;- data.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.31.1" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="Introducing ggparl">
+<meta property="og:description" content="Aboutggparl is a small R package for conveniently drawing parliament diagrams with ggplot2. For now, it consists of only two functions, the usage of which is outlined below.
+#install.packages(&quot;devtools&quot;)devtools::install_github(&quot;erocoar/ggparl&quot;)library(ggparl)ggplot_parliamentggplot_parliament draws a parliament diagram that looks much like the diagrams seen on Wikipedia. Points along an arc are clustered by parties with each point representing a single member of parliament.
+# creating sample databt &lt;- data.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="/2018/01/26/2018-01-26-introducing-ggparl/">
+        <link rel="stylesheet" href="/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        
+        
+    </head>
+    <body>
+        
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111592073-1', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="Pi*Thumb" href="/">Pi*Thumb</a>
+                            </h1>
+                        
+                        <a class="button-square" href="/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/erocoar">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Stack Overflow" title="Stack Overflow" href="https://stackoverflow.com/users/5508500/erocoar">
+                                <i class="fa fa-stack-overflow"></i>
+                            </a>
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="LinkedIn" title="LinkedIn" href="https://www.linkedin.com/in/frederik-tiedemann-67291396/">
+                                <i class="fa fa-linkedin"></i>
+                            </a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:fj.tiedemann@googlemail.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="About" href="/page/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Introducing ggparl</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2018-01-26" itemprop="datePublished">Fri, Jan 26, 2018</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="#" itemprop="url" rel="author">Frederik Tiedemann</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    <div id="about" class="section level2">
+<h2>About</h2>
+<p><code>ggparl</code> is a small R package for conveniently drawing parliament diagrams with <code>ggplot2</code>. For now, it consists of only two functions, the usage of which is outlined below.</p>
+<pre class="r"><code>#install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;erocoar/ggparl&quot;)
+library(ggparl)</code></pre>
+</div>
+<div id="ggplot_parliament" class="section level2">
+<h2>ggplot_parliament</h2>
+<p><code>ggplot_parliament</code> draws a parliament diagram that looks much like the diagrams seen on Wikipedia. Points along an arc are clustered by parties with each point representing a single member of parliament.</p>
+<pre class="r"><code># creating sample data
+bt &lt;- data.frame(
+        parties = c(&quot;CDU&quot;, &quot;CSU&quot;, &quot;SPD&quot;, &quot;AfD&quot;, &quot;FDP&quot;, &quot;Linke&quot;, &quot;Gruene&quot;, &quot;Fraktionslos&quot;),
+        seats   = c(200, 46, 153, 92, 80, 69, 67, 2),
+        colors  = c(&quot;black&quot;, &quot;blue&quot;, &quot;red&quot;, &quot;lightblue&quot;, &quot;yellow&quot;,&quot;purple&quot;, &quot;green&quot;, &quot;grey&quot;),
+        stringsAsFactors = FALSE)
+
+# vector is drawn from left to right, unless autosort is set to TRUE,
+# in which case vector is drawn from left to right sorted from most to least members
+ggplot_parliament(bt$parties, bt$seats, bt$colors)</code></pre>
+<div class="figure">
+<img src="/img/introducing-ggparl/parl1.png" />
+
+</div>
+<pre class="r"><code>library(gridExtra)
+df &lt;- data.frame(
+  &quot;Parties&quot; = c(&quot;SPÖ&quot;, &quot;PILZ&quot;, &quot;NEOS&quot;, &quot;ÖVP&quot;, &quot;FPÖ&quot;,
+                &quot;CRCE&quot;, &quot;SOC&quot;, &quot;RDSE&quot;, &quot;REM&quot;, &quot;LIRT&quot;, &quot;UC&quot;, &quot;LR&quot;, &quot;RASNAG&quot;,
+                &quot;MPRP&quot;, &quot;MPP&quot;, &quot;DP&quot;, &quot;Independent&quot;,
+                &quot;CPV&quot;, &quot;Independent&quot;),
+  &quot;Members&quot; = c(52, 8, 10, 62, 51,
+                15, 78, 21, 21, 11, 50, 146, 6,
+                1, 65, 9, 1,
+                475, 25),
+  &quot;Colors&quot;  = c(&quot;red&quot;, &quot;grey&quot;, &quot;pink&quot;, &quot;black&quot;, &quot;blue&quot;,
+                &quot;red&quot;, &quot;darksalmon&quot;, &quot;purple&quot;, &quot;yellow&quot;, &quot;deepskyblue3&quot;, &quot;cyan&quot;, &quot;blue&quot;, &quot;grey&quot;,
+                &quot;brown&quot;, &quot;red&quot;, &quot;midnightblue&quot;, &quot;grey&quot;,
+                &quot;red&quot;, &quot;lightpink2&quot;),
+  &quot;Country&quot; = rep(c(&quot;Austria&quot;, &quot;France&quot;, &quot;Mongolia&quot;, &quot;Vietnam&quot;), c(5, 8, 4, 2)),
+  stringsAsFactors = FALSE)
+
+p &lt;- by(df, df$Country, function(x) {
+  ggplot_parliament(x$Parties, x$Members, x$Colors) + 
+    ggtitle(x$Country[1]) +
+    theme(plot.title = element_text(hjust = 0.5))
+})
+
+do.call(grid.arrange, p)</code></pre>
+<div class="figure">
+<img src="/img/introducing-ggparl/parl_grp.png" />
+
+</div>
+</div>
+<div id="ggplot_parliament2" class="section level2">
+<h2>ggplot_parliament2</h2>
+<p><code>ggplot_parliament2</code> draws an arc bar chart with optional spacing showing the parties’ proportional representation in parliament. This is much like <code>ggforce</code>’s <a href="https://cran.r-project.org/web/packages/ggforce/vignettes/Visual_Guide.html#arcs"><code>geom_arc_bar</code></a> but always draws from <span class="math inline">\(\pi\)</span> to <span class="math inline">\(0\)</span> / left to right, without any angle specification required. It also features an optional spacing argument, specified as total spacing as a proportion of <span class="math inline">\(\pi\)</span>.</p>
+<pre class="r"><code>ggplot_parliament2(bt$parties, bt$seats, bt$colors, sep = 0.05)</code></pre>
+<div class="figure">
+<img src="/img/introducing-ggparl/parl2.png" />
+
+</div>
+</div>
+<div id="future" class="section level2">
+<h2>Future</h2>
+<p>While the current use is obviously limited, I plan to in the future extend ggparl to include more functions for convenient visualization of data frequently encountered in politics. If you want to see a certain feature, you can file an issue on <a href="https://github.com/erocoar/ggparl">GitHub</a> - that is also where you can find the code :)</p>
+</div>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+        <p class="post-tags">
+            <span>Tagged:</span>
+            
+            
+                <a href="/tags/ggplot2/">ggplot2</a>
+            
+        </p>
+    
+
+    <div class="share">
+        
+            <a class="icon-twitter" href="https://twitter.com/share?text=Introducing%20ggparl&url=%2f2018%2f01%2f26%2f2018-01-26-introducing-ggparl%2f"
+                onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                <i class="fa fa-twitter"></i>
+                <span class="hidden">Twitter</span>
+            </a>
+        
+
+        
+            <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=%2f2018%2f01%2f26%2f2018-01-26-introducing-ggparl%2f"
+                onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                <i class="fa fa-facebook"></i>
+                <span class="hidden">Facebook</span>
+            </a>
+        
+
+        
+            <a class="icon-google-plus" href="https://plus.google.com/share?url=%2f2018%2f01%2f26%2f2018-01-26-introducing-ggparl%2f"
+              onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+              <i class="fa fa-google-plus"></i>
+                <span class="hidden">Google+</span>
+            </a>
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="Pi*Thumb" href="/">Pi*Thumb</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span>&copy; 2018 / Powered by <a href="https://gohugo.io/">Hugo</a></span>
+                </p>
+                <p class="footer-copyright">
+                    <span><a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></span>
+                    <span>/ <a href="https://github.com/jbub/ghostwriter">Ported</a> to Hugo By <a href="https://github.com/jbub">jbub</a></span>
+                </p>
+            </div>
+        </footer>
+
+        <script src="/js/jquery-1.11.3.min.js"></script>
+        <script src="/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="/js/scripts.js"></script>
+    </body>
+</html>
+

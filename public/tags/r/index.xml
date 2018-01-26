@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R on Pi*Thumb</title>
+    <link>/tags/r/</link>
+    <description>Recent content in R on Pi*Thumb</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Frederik Tiedemann</copyright>
+    <lastBuildDate>Tue, 26 Dec 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Christmas Drawings with ggforce</title>
+      <link>/2017/12/26/christmas-drawings-with-ggforce/</link>
+      <pubDate>Tue, 26 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/12/26/christmas-drawings-with-ggforce/</guid>
+      <description>Merry Christmas! This is me having a go at creating some Christmas-y plots in R with the lovely ggforce package.
+library(ggforce)#basic rotation matrixrotate &amp;lt;- function(angle){a = angle * pi / 180matrix(c(cos(a), -sin(a), sin(a), cos(a)), ncol = 2)}#to get points w/ x distance from linelineNorm &amp;lt;- function(x0, y0, x1, y1) {o &amp;lt;- cbind(x1, y1) - cbind(x0, y0)as.matrix(o / sqrt(sum(o^2)))}#main structure for snowflakes/starsmainStructure &amp;lt;- matrix(rotate(seq(45, 360, 45)) %*% t(matrix(c(0, 1), ncol = 2)), ncol = 2, byrow = F)sides &amp;lt;- t(cbind(rotate(30) %*% t(mainStructure),rotate(-30) %*% t(mainStructure)))sideN &amp;lt;- cbind(rep(mainStructure[, 1]/2, 2), rep(mainStructure[, 2]/2, 2)) + 1.</description>
+    </item>
+    
+    <item>
+      <title>Ordinal Logistic Regression with ggplot2</title>
+      <link>/2017/12/24/ordinal-logistic-regression-with-ggplot2/</link>
+      <pubDate>Sun, 24 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/12/24/ordinal-logistic-regression-with-ggplot2/</guid>
+      <description>Ordinal logistic regression is used to predict an ordinal response variable given one or more continuous or discrete explanatory variables. The ordinal response \(Y\) could represent attitudes measured on a standard scale, ranging from e.g. “Strongly Disagree” to “Strongly Agree”. \(Y\) could also be constructed with a hierarchy of endpoints such as “Okay”, “Good” and “Great” for rating Donald Trump’s first-year presidential performance.
+An advantage of the ordinal logistic model is that no spacing between the different levels of \(Y\) is assumed.</description>
+    </item>
+    
+  </channel>
+</rss>

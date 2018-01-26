@@ -1,0 +1,199 @@
+---
+title: Christmas Drawings with ggforce
+theme: hugo-kiera
+author: ~
+date: '2017-12-26'
+categories: ["visualization", "r"]
+tags: ["ggplot2", "r"]
+---
+
+
+
+<p>Merry Christmas! This is me having a go at creating some Christmas-y plots in R with the lovely <a href="https://cran.r-project.org/web/packages/ggforce/vignettes/Visual_Guide.html">ggforce</a> package.</p>
+<pre class="r"><code>library(ggforce)
+
+#basic rotation matrix
+rotate &lt;- function(angle){
+  a = angle * pi / 180
+  matrix(c(cos(a), -sin(a), sin(a), cos(a)), ncol = 2)
+}
+
+#to get points w/ x distance from line
+lineNorm &lt;- function(x0, y0, x1, y1) {
+  o &lt;- cbind(x1, y1) - cbind(x0, y0)
+  as.matrix(o / sqrt(sum(o^2)))
+}
+
+#main structure for snowflakes/stars
+mainStructure &lt;- matrix(rotate(seq(45, 360, 45)) %*% t(matrix(c(0, 1), ncol = 2)), ncol = 2, byrow = F)
+
+sides &lt;- t(cbind(rotate(30) %*% t(mainStructure),
+                 rotate(-30) %*% t(mainStructure)))
+
+sideN &lt;- cbind(rep(mainStructure[, 1]/2, 2), rep(mainStructure[, 2]/2, 2)) + 
+  1.65*lineNorm(rep(mainStructure[, 1]/2, 2), rep(mainStructure[, 2]/2, 2), sides[, 1]/2, sides[, 2]/2)</code></pre>
+<p>A star:</p>
+<pre class="r"><code>sideN2 &lt;- cbind(rep(mainStructure[, 1]/2, 2), rep(mainStructure[, 2]/2, 2)) + 
+  2*lineNorm(rep(mainStructure[, 1]*1.5, 2), rep(mainStructure[, 2]*1.5, 2), sides[, 1], sides[, 2])
+
+
+star &lt;- ggplot() + coord_fixed() + theme_void() + theme(legend.position = &quot;none&quot;) +
+  geom_link(aes(x = 0, y = 0, 
+                xend = mainStructure[, 1], 
+                yend = mainStructure[, 2], size = ..index..*-1), colour = &quot;#FFD700&quot;) +
+  geom_link(aes(x = 0, y = 0, 
+                xend = mainStructure[, 1], 
+                yend = mainStructure[, 2], size = ..index..*-1, alpha = ..index..), colour = &quot;#ffeb7f&quot;) +
+  
+  geom_link(aes(x = rep(mainStructure[, 1]/4, 2),
+                y = rep(mainStructure[, 2]/4, 2),
+                xend = sideN[, 1],
+                yend = sideN[, 2], size = ..index..), colour = &quot;#FFD700&quot;) +
+  geom_link(aes(x = rep(mainStructure[, 1]/4, 2),
+                y = rep(mainStructure[, 2]/4, 2),
+                xend = sideN[, 1],
+                yend = sideN[, 2], size = ..index.., alpha = ..index..*-1), colour = &quot;#fff7cc&quot;) +
+  
+  geom_link(aes(x = rep(mainStructure[, 1], 2),
+                y = rep(mainStructure[, 2], 2),
+                xend = sideN2[, 1],
+                yend = sideN2[, 2], size = ..index..), colour = &quot;#FFD700&quot;) +
+  geom_link(aes(x = rep(mainStructure[, 1], 2),
+                y = rep(mainStructure[, 2], 2),
+                xend = sideN2[, 1],
+                yend = sideN2[, 2], size = ..index.., alpha = ..index..), colour = &quot;#fff7cc&quot;)</code></pre>
+<div class="figure">
+<img src="/img/christmas-drawings-ggforce/ggforce-star.png" />
+
+</div>
+<p>This way, snowflakes can also be plotted. For example:</p>
+<pre class="r"><code>upper &lt;- rbind(t(rotate(45) %*% t(mainStructure - mainStructure/1.2) + t(mainStructure/1.2)),
+               t(rotate(-45) %*% t(mainStructure - mainStructure/1.2) + t(mainStructure/1.2)))
+
+upperNorm &lt;- 1.5*lineNorm(mainStructure[, 1]/1.25,
+                          mainStructure[, 2]/1.25,
+                          upper[, 1],
+                          upper[, 2])
+
+flake1 &lt;- ggplot() + coord_fixed() + theme_void() + theme(legend.position = &quot;none&quot;) +
+  geom_link(aes(x = 0, y = 0, 
+                xend = mainStructure[, 1], 
+                yend = mainStructure[, 2], 
+                size = ..index..*-1, alpha = ..index..*-1), colour = &quot;blue&quot;) +
+  geom_link(aes(x = 0, y = 0, 
+                xend = mainStructure[, 1], 
+                yend = mainStructure[, 2], 
+                size = ..index..*-1, alpha = ..index..*-1), colour = &quot;#c6fbff&quot;) +
+  
+  geom_link(aes(x = rep(mainStructure[, 1]/4, 2),
+                y = rep(mainStructure[, 2]/4, 2),
+                xend = sideN[, 1]*-1,
+                yend = sideN[, 2]*-1,
+                size = ..index..*-1, alpha = ..index..*-1), colour = &quot;blue&quot;) +
+  geom_link(aes(x = rep(mainStructure[, 1]/4, 2),
+                y = rep(mainStructure[, 2]/4, 2),
+                xend = sideN[, 1]*-1,
+                yend = sideN[, 2]*-1,
+                size = ..index..*-1, alpha = ..index..), colour = &quot;#abf0ff&quot;) +
+  
+  geom_link(aes(x = rep(mainStructure[, 1]/1.2, 2),
+                y = rep(mainStructure[, 2]/1.2, 2),
+                xend = upper[, 1],
+                yend = upper[, 2], size = ..index..*-1, alpha = ..index..), colour = &quot;blue&quot;) +
+  geom_link(aes(x = rep(mainStructure[, 1]/1.2, 2),
+                y = rep(mainStructure[, 2]/1.2, 2),
+                xend = upper[, 1],
+                yend = upper[, 2], size = ..index..*-1, alpha = ..index..), colour = &quot;#c6fbff&quot;) +
+  
+  geom_link(aes(x = rep(mainStructure[, 1]/1.4, 2),
+                y = rep(mainStructure[, 2]/1.4, 2),
+                xend = upper[, 1]/1.15,
+                yend = upper[, 2]/1.15, size = ..index..*-1, alpha = ..index..), colour = &quot;blue&quot;) +
+  geom_link(aes(x = rep(mainStructure[, 1]/1.4, 2),
+                y = rep(mainStructure[, 2]/1.4, 2),
+                xend = upper[, 1]/1.15,
+                yend = upper[, 2]/1.15, size = ..index..*-1, alpha = ..index..), colour = &quot;#c6fbff&quot;) +
+  
+  geom_link(aes(x = rep(mainStructure[, 1]/1.7, 2),
+                y = rep(mainStructure[, 2]/1.7, 2),
+                xend = upper[, 1]/1.4,
+                yend = upper[, 2]/1.4, size = ..index..*-1, alpha = ..index..), colour = &quot;blue&quot;) +
+  geom_link(aes(x = rep(mainStructure[, 1]/1.7, 2),
+                y = rep(mainStructure[, 2]/1.7, 2),
+                xend = upper[, 1]/1.4,
+                yend = upper[, 2]/1.4, size = ..index..*-1, alpha = ..index..), colour = &quot;#c6fbff&quot;)</code></pre>
+<p><img src="/img/christmas-drawings-ggforce/ggforce-flake1.png" /> <img src="/img/christmas-drawings-ggforce/ggforce-flake2.png" /></p>
+<p>For a Christmas tree, I use some initial coordinates and follow the rocket example in the <code>ggforce</code> visual guide.</p>
+<pre class="r"><code>library(grid)
+#tree data
+tannenbaum &lt;- data.frame(x=c(-0.75, -1.75, -2.75, -1.75, -1.25, -0.75),
+                         y=c(2, 2, 2, 3, 4, 5))
+
+tannenbaum_fill_left &lt;- with(tannenbaum, {
+  cbind(sapply(seq(0, 0.75, 0.25), FUN = function(i) i + x),
+        sapply(seq(0, 3, 1), FUN = function(i) i + y))
+})
+
+tannenbaum_fill_left_fill &lt;- tannenbaum
+
+tannenbaum_fill_left_fill &lt;- do.call(rbind, lapply(seq(500), function(i) {
+  tannenbaum_fill_left_fill$x &lt;- tannenbaum_fill_left_fill$x + c(0, i/500)
+  tannenbaum_fill_left_fill$y[2] &lt;- tannenbaum_fill_left_fill$y[2] - i*0.3/500
+  tannenbaum_fill_left_fill$group &lt;- i+1
+  tannenbaum_fill_left_fill
+}))
+
+tannenbaum_fill_left_fill &lt;- tannenbaum_fill_left_fill[-3000, ]
+tannenbaum_fill_left_fill$x &lt;- ifelse(tannenbaum_fill_left_fill$y == 5 &amp; tannenbaum_fill_left_fill$x &gt; 0,
+                                      0, tannenbaum_fill_left_fill$x)
+
+#bg data
+bg &lt;- rasterGrob(rev(blues9)[-c(1:2)], width=unit(1, &quot;npc&quot;), height = unit(1, &quot;npc&quot;), 
+                interpolate = TRUE)
+
+tree &lt;- ggplot() + 
+  coord_fixed() + theme_void() + theme(legend.position = &quot;none&quot;) + xlim(-5, 12) + ylim(0, 15) + 
+  
+  # ----- BG
+  annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +
+  geom_point(aes(x=runif(200, -5, 12), y=runif(200, 0, 15), alpha=sample(1:10, 200, replace=TRUE)),
+             colour = &quot;#c6fbff&quot;, shape = 16) +
+  geom_bspline(aes(x=c(0, 5, 11), y=c(0, 5, 7), alpha=rev(..index..)), size = 2, colour=&quot;gold&quot;) +
+  
+  # ----- TREE STEM
+  geom_link(aes(x = -1, y = 2, xend = 1, yend = 2)) +
+  geom_link(aes(x = 0, y = 2, xend = 0, yend = 0.5, alpha = ..index..), colour = &quot;#262118&quot;, size = 15, n = 200) +
+  geom_link(aes(x = 0, y = 2, xend = 0, yend = 0.5, alpha = ..index..*-2), colour = &quot;#53350A&quot;, size = 15, n = 200) +
+  
+  # ---- FILL BEZIERS LEFT
+  geom_bspline(aes(x=x, y=y), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#222721&quot;) +
+  geom_bspline(aes(x=x+0.25, y=y+1), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#075600&quot;) +
+  geom_bspline(aes(x=x+0.5, y=y+2), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#222721&quot;) +
+  geom_bspline(aes(x=x+0.75, y=y+3), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#075600&quot;) +
+  
+  # ---- FILL BEZIERS RIGHT
+  geom_bspline(aes(x=x*-1, y=y), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#075600&quot;) +
+  geom_bspline(aes(x=(x*-1)-0.15, y=y+1), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#222721&quot;) +
+  geom_bspline(aes(x=(x*-1)-0.4, y=y+2), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#1d2f0c&quot;) +
+  geom_bspline(aes(x=(x*-1)-0.65, y=y+3), data = as.data.frame(tannenbaum_fill_left_fill), colour = &quot;#075600&quot;) +
+
+  geom_bspline(aes(x=c(-2, 0, 2), y=c(2, 1.95, 2))) +
+  geom_bspline(aes(x=c(-2, 0, 2), y=c(2, 1.85, 2))) +
+  geom_bspline(aes(x=c(-2, 0, 2), y=c(2, 1.75, 2))) +
+  geom_bspline(aes(x=c(-2, 0, 2), y=c(2.1, 2, 2.1))) +
+  
+  geom_bspline(aes(x=c(-2.1, 0, 2.1), y=c(3, 2.8, 3))) +
+  geom_bspline(aes(x=c(-2.1, 0, 2.1), y=c(3, 2.9, 3))) +
+  geom_bspline(aes(x=c(-1.5, 0, 1.5), y=c(4, 3.8, 4))) +
+  geom_bspline(aes(x=c(-1.5, 0, 1.5), y=c(4, 3.9, 4))) +
+  
+  geom_bspline(aes(x=c(0.35, 0.4, 0.33), y=c(2, 1, 0.5)))</code></pre>
+<div class="figure">
+<img src="/img/christmas-drawings-ggforce/ggforce-tree.png" />
+
+</div>
+<p>Putting some things together:</p>
+<div class="figure">
+<img src="/img/christmas-drawings-ggforce/ggforce-card.png" />
+
+</div>

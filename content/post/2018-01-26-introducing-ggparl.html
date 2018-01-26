@@ -1,0 +1,77 @@
+---
+title: Introducing ggparl
+author: Frederik Tiedemann
+date: '2018-01-26'
+slug: introducing-ggparl
+categories: ["visualization", "r", "package"]
+tags: ["ggplot2"]
+---
+
+
+
+<div id="about" class="section level2">
+<h2>About</h2>
+<p><code>ggparl</code> is a small R package for conveniently drawing parliament diagrams with <code>ggplot2</code>. For now, it consists of only two functions, the usage of which is outlined below.</p>
+<pre class="r"><code>#install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;erocoar/ggparl&quot;)
+library(ggparl)</code></pre>
+</div>
+<div id="ggplot_parliament" class="section level2">
+<h2>ggplot_parliament</h2>
+<p><code>ggplot_parliament</code> draws a parliament diagram that looks much like the diagrams seen on Wikipedia. Points along an arc are clustered by parties with each point representing a single member of parliament.</p>
+<pre class="r"><code># creating sample data
+bt &lt;- data.frame(
+        parties = c(&quot;CDU&quot;, &quot;CSU&quot;, &quot;SPD&quot;, &quot;AfD&quot;, &quot;FDP&quot;, &quot;Linke&quot;, &quot;Gruene&quot;, &quot;Fraktionslos&quot;),
+        seats   = c(200, 46, 153, 92, 80, 69, 67, 2),
+        colors  = c(&quot;black&quot;, &quot;blue&quot;, &quot;red&quot;, &quot;lightblue&quot;, &quot;yellow&quot;,&quot;purple&quot;, &quot;green&quot;, &quot;grey&quot;),
+        stringsAsFactors = FALSE)
+
+# vector is drawn from left to right, unless autosort is set to TRUE,
+# in which case vector is drawn from left to right sorted from most to least members
+ggplot_parliament(bt$parties, bt$seats, bt$colors)</code></pre>
+<div class="figure">
+<img src="/img/introducing-ggparl/parl1.png" />
+
+</div>
+<pre class="r"><code>library(gridExtra)
+df &lt;- data.frame(
+  &quot;Parties&quot; = c(&quot;SPÖ&quot;, &quot;PILZ&quot;, &quot;NEOS&quot;, &quot;ÖVP&quot;, &quot;FPÖ&quot;,
+                &quot;CRCE&quot;, &quot;SOC&quot;, &quot;RDSE&quot;, &quot;REM&quot;, &quot;LIRT&quot;, &quot;UC&quot;, &quot;LR&quot;, &quot;RASNAG&quot;,
+                &quot;MPRP&quot;, &quot;MPP&quot;, &quot;DP&quot;, &quot;Independent&quot;,
+                &quot;CPV&quot;, &quot;Independent&quot;),
+  &quot;Members&quot; = c(52, 8, 10, 62, 51,
+                15, 78, 21, 21, 11, 50, 146, 6,
+                1, 65, 9, 1,
+                475, 25),
+  &quot;Colors&quot;  = c(&quot;red&quot;, &quot;grey&quot;, &quot;pink&quot;, &quot;black&quot;, &quot;blue&quot;,
+                &quot;red&quot;, &quot;darksalmon&quot;, &quot;purple&quot;, &quot;yellow&quot;, &quot;deepskyblue3&quot;, &quot;cyan&quot;, &quot;blue&quot;, &quot;grey&quot;,
+                &quot;brown&quot;, &quot;red&quot;, &quot;midnightblue&quot;, &quot;grey&quot;,
+                &quot;red&quot;, &quot;lightpink2&quot;),
+  &quot;Country&quot; = rep(c(&quot;Austria&quot;, &quot;France&quot;, &quot;Mongolia&quot;, &quot;Vietnam&quot;), c(5, 8, 4, 2)),
+  stringsAsFactors = FALSE)
+
+p &lt;- by(df, df$Country, function(x) {
+  ggplot_parliament(x$Parties, x$Members, x$Colors) + 
+    ggtitle(x$Country[1]) +
+    theme(plot.title = element_text(hjust = 0.5))
+})
+
+do.call(grid.arrange, p)</code></pre>
+<div class="figure">
+<img src="/img/introducing-ggparl/parl_grp.png" />
+
+</div>
+</div>
+<div id="ggplot_parliament2" class="section level2">
+<h2>ggplot_parliament2</h2>
+<p><code>ggplot_parliament2</code> draws an arc bar chart with optional spacing showing the parties’ proportional representation in parliament. This is much like <code>ggforce</code>’s <a href="https://cran.r-project.org/web/packages/ggforce/vignettes/Visual_Guide.html#arcs"><code>geom_arc_bar</code></a> but always draws from <span class="math inline">\(\pi\)</span> to <span class="math inline">\(0\)</span> / left to right, without any angle specification required. It also features an optional spacing argument, specified as total spacing as a proportion of <span class="math inline">\(\pi\)</span>.</p>
+<pre class="r"><code>ggplot_parliament2(bt$parties, bt$seats, bt$colors, sep = 0.05)</code></pre>
+<div class="figure">
+<img src="/img/introducing-ggparl/parl2.png" />
+
+</div>
+</div>
+<div id="future" class="section level2">
+<h2>Future</h2>
+<p>While the current use is obviously limited, I plan to in the future extend ggparl to include more functions for convenient visualization of data frequently encountered in politics. If you want to see a certain feature, you can file an issue on <a href="https://github.com/erocoar/ggparl">GitHub</a> - that is also where you can find the code :)</p>
+</div>

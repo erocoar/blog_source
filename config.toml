@@ -1,31 +1,37 @@
 baseurl = "https://erocoar.github.io/"
 title = "Pi*Thumb"
-copyright = "Copyright &copy; 2017 - Frederik Tiedemann"
+theme = "ghostwriter"
+languageCode = "en-us"
+copyright = "Frederik Tiedemann"
 canonifyurls = true
-theme = "hugo-kiera"
-math = true
-
 googleAnalytics = "UA-111592073-1"
-publishDir = "../erocoar.github.io"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
-pygmentsUseClassic=true
+[Author]
+    name = "Frederik Tiedemann"
+	
+[Taxonomies]
+    tag = "tags"
+	
+[Params]
+    intro = true
+    headline = "Blog"
+    description = ""
+    github = "https://github.com/erocoar"
+    linkedin = "https://www.linkedin.com/in/frederik-tiedemann-67291396/"
+    stackoverflow = "https://stackoverflow.com/users/5508500/erocoar"
+    email = "fj.tiedemann@googlemail.com"
+    opengraph = true
+    shareTwitter = true
+    shareFacebook = true
+    shareGooglePlus = true
+    shareLinkedIn = false
+    dateFormat = "Mon, Jan 2, 2006"
+    highlightJsUrl = ""
+    highlightJsLocalUrl = ""
 
-paginate = 3
+[Permalinks]
+    post = "/:year/:month/:day/:filename/"
+	
 
-summaryLength = 30
-enableEmoji = true
-pygmentsCodeFences = true
-
-[author]
-    name = ""
-    github = "erocoar"
-    gitlab = ""
-    linkedin = ""
-    facebook = ""
-    twitter = ""
-    instagram = ""
-
-[params]
-    tagline = "..."
 
 
