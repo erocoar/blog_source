@@ -2,6 +2,7 @@ baseurl = "https://erocoar.github.io/"
 title = "Pi*Thumb"
 theme = "ghostwriter"
 languageCode = "en-us"
+publishDir = "../erocoar.github.io"
 copyright = "Frederik Tiedemann"
 canonifyurls = true
 googleAnalytics = "UA-111592073-1"
@@ -31,6 +32,11 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [Permalinks]
     post = "/:year/:month/:day/:filename/"
+	
+[[menu.main]]
+    name = "Blog"
+    url = "/"
+    weight = 1
 	
 
 
